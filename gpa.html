@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>GPA Cá Nhân</title>
+<style>
+body {
+    font-family: system-ui, sans-serif;
+    max-width: 500px;
+    margin: 40px auto;
+}
+h2 {
+    text-align: center;
+}
+.row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+input {
+    flex: 1;
+    padding: 6px;
+}
+button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+}
+.result {
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+
+<h2>📘 GPA học kỳ (hệ 10)</h2>
+
+<div id="list"></div>
+
+<button onclick="add()">➕ Thêm môn</button>
+<button onclick="calc()">📊 Tính GPA</button>
+
+<div class="result" id="res"></div>
+
+<script>
+function add(score = "", credit = "") {
+    let div = document.createElement("div");
+    div.className = "row";
+    div.innerHTML = `
+        <input type="number" min="0" max="10" step="0.1" placeholder="Điểm" value="${score}">
+        <input type="number" min="1" placeholder="Tín chỉ" value="${credit}">
+        <button onclick="this.parentElement.remove()">❌</button>
+    `;
+    document.getElementById("list").appendChild(div);
+}
+
+function calc() {
+    let rows = document.querySelectorAll(".row");
+    let sum = 0, credits = 0;
+
+    rows.forEach(r => {
+        let s = parseFloat(r.children[0].value);
+        let c = parseInt(r.children[1].value);
+        if (!isNaN(s) && !isNaN(c)) {
+            sum += s * c;
+            credits += c;
+        }
+    });
+
+    if (credits === 0) {
+        document.getElementById("res").innerText = "⚠️ Chưa nhập dữ liệu";
+        return;
+    }
+
+    let gpa = sum / credits;
+    document.getElementById("res").innerText =
+        "🎯 GPA: " + gpa.toFixed(2);
+
+    save();
+}
+
+function save() {
+    let data = [];
+    document.querySelectorAll(".row").forEach(r => {
+        data.push({
+            s: r.children[0].value,
+            c: r.children[1].value
+        });
+    });
+    localStorage.setItem("gpaData", JSON.stringify(data));
+}
+
+function load() {
+    let data = JSON.parse(localStorage.getItem("gpaData") || "[]");
+    data.forEach(d => add(d.s, d.c));
+    if (data.length === 0) add();
+}
+
+load();
+</script>
+
+</body>
+</html>
